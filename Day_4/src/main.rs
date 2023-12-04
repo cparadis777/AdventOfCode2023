@@ -1,5 +1,8 @@
 use std::fs;
+use std::collections::HashMap;
 
+
+#[derive(Clone)]
 struct Card {
     id: i32,
     pool: Vec<i32>,
@@ -54,26 +57,70 @@ fn validate_card(card: Card) -> i32 {
     for test_number in card.pool {
         for winning_number in &winning {
             if test_number == *winning_number {
-                if total == 0 {
-                    total = 1;
-                } else {
-                    total *= 2;
-                }
+                total += 1;
             }
         }
     }
 
     total
 }
-fn main() {
+
+fn part_one() {
+
+    let contents = fs::read_to_string("./puzzle.txt").unwrap();
+    let mut cards: Vec<Card> = Vec::new();
+    for line in contents.lines() {
+        cards.push(parse_card(line));
+    }
+    let mut total: i32 = 0;
+    for card in cards {
+        let number_of_match:i32 = validate_card(card);
+        if number_of_match != 0 {
+            total += 1 * i32::pow(2, (number_of_match-1).try_into().unwrap());
+        }
+    }
+    println!("Complete: total is {}", total);
+
+}
+
+fn part_two() {
     let contents = fs::read_to_string("./puzzle.txt").unwrap();
     let mut cards: Vec<Card> = Vec::new();
     for line in contents.lines() {
         cards.push(parse_card(line))
     }
-    let mut total: i32 = 0;
-    for card in cards {
-        total += validate_card(card);
+
+    let mut collection:HashMap<i32, i32> = HashMap::new();
+
+    for card in cards.clone() {
+        collection.insert(card.id, 1);
     }
-    println!("Complete: total is {}", total);
+
+    for card in cards {
+        let card_id = card.id;
+        let number_of_matches:i32 = validate_card(card);
+        println!("card #{}: {} matches", card_id, number_of_matches);
+        let current_number_of_cards = collection[&card_id];
+        for offset in 1..=number_of_matches{
+            let card_to_add_id = card_id+offset;
+            let current_number_of_card_to_add = collection[&(card_to_add_id)];
+            let new_number_of_cards = current_number_of_cards + current_number_of_card_to_add;
+            collection.insert(card_to_add_id, new_number_of_cards);
+
+        }
+        
+    }
+    let mut total = 0;
+    for number_of_cards in collection.values() {
+        total += number_of_cards;
+
+    }
+    println!("{:?}", collection);
+    println!("{}", total);
+}
+
+fn main() {
+    //part_one();
+    part_two();
+    
 }
