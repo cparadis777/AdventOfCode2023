@@ -1,5 +1,6 @@
 use std::fs;
 
+#[derive(Clone, Copy)]
 struct Race {
     time: i128,
     distance: i128,
@@ -68,7 +69,17 @@ fn part_two() {
     let distance: i128 = parse_line_part_two(lines.pop().unwrap());
     let time: i128 = parse_line_part_two(lines.pop().unwrap());
     let race: Race = Race { distance, time };
-    println!("{}", solve_race(race))
+    println!("{}", solve_race(race));
+
+    //Alternate way to solve part 2
+    // distance_traveled = speed * time_left
+    // speed = time_charging
+    // time left = total_time - time_charging
+    // distance_traveled = time_charging * (total_time - time_charging)
+    // distance_traveled = time_charging * total_time - time_charging^2
+
+    let distance_traveled: f64 = race.distance as f64;
+    let total_time: f64 = race.time as f64;
 }
 
 fn main() {
